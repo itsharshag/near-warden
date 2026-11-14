@@ -1,0 +1,89 @@
+{
+  "model": "Qwen/Qwen3.8-27B",
+  "nonce": "8115c8ba543d23b157a5d47e12e213873caaaae3762658a2540b4333b1ae694b",
+  "report_sha256": "2f7a48ce8d98c5c336b273ba80a0b2b06cde93945c238ccd5fdba4d811ccca08",
+  "gateway": {
+    "signing_address": "0xb98a789cdc4817275f5155593ba73ef2a957e779",
+    "signing_algo": "ecdsa",
+    "tcb_status": "UpToDate",
+    "compose_hash": "2643bc7ae47ecf4cf84509a647d2c2cc3bcacad95a87b8a73d543e6c48ad3b22",
+    "checks": [
+      {
+        "check": "Intel TDX quote signature (dcap-qvl, Intel PCS collateral)",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "check": "TCB status accepted",
+        "ok": true,
+        "detail": "UpToDate"
+      },
+      {
+        "check": "TDX debug mode off",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "check": "report_data binds signing address + our fresh nonce",
+        "ok": true,
+        "detail": "0xb98a789cdc4817275f5155593ba73ef2a957e779"
+      },
+      {
+        "check": "MRCONFIGID matches the measured app_compose",
+        "ok": true,
+        "detail": "2643bc7ae47ecf4cf84509a647d2c2cc3bcacad95a87b8a73d543e6c48ad3b22"
+      },
+      {
+        "check": "RTMR3 event log replays",
+        "ok": true,
+        "detail": ""
+      }
+    ]
+  },
+  "models": [
+    {
+      "signing_address": "0x835ab53d20294ef795906dff21ae4c045336aa26",
+      "signing_algo": "ecdsa",
+      "tcb_status": "UpToDate",
+      "compose_hash": "e8416a02d6f7ce47baaa52e3925b934fd30834b04fc9086b363db9b1d12c729d",
+      "checks": [
+        {
+          "check": "Intel TDX quote signature (dcap-qvl, Intel PCS collateral)",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "check": "TCB status accepted",
+          "ok": true,
+          "detail": "UpToDate"
+        },
+        {
+          "check": "TDX debug mode off",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "check": "report_data binds signing address + our fresh nonce",
+          "ok": true,
+          "detail": "0x835ab53d20294ef795906dff21ae4c045336aa26"
+        },
+        {
+          "check": "MRCONFIGID matches the measured app_compose",
+          "ok": true,
+          "detail": "e8416a02d6f7ce47baaa52e3925b934fd30834b04fc9086b363db9b1d12c729d"
+        },
+        {
+          "check": "RTMR3 event log replays",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "check": "NVIDIA GPU attestation (NRAS)",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    }
+  ],
+  "ok": true
+}
