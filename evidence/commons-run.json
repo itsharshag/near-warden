@@ -1,0 +1,98 @@
+{
+  "runs": [
+    {
+      "at": "2026-11-14T21:12:02.535Z",
+      "vault": "commons.nearwarden.testnet",
+      "dao": "warden-commons.sputnikv2.testnet",
+      "results": [
+        {
+          "scene": "council-ask",
+          "kind": "escalated",
+          "layer": "council",
+          "reason": "waiting for one council member (0 paid before)",
+          "tx": "ChmpJLe5U3R34f3Eack7zx9Qt2sygE6AN15iZYcd6cFL",
+          "signer": null
+        },
+        {
+          "scene": "council-approve",
+          "kind": "paid",
+          "layer": "council",
+          "reason": "approved by nearwarden.testnet: waiting for one council member (0 paid before)",
+          "tx": "H3dh2z825aF8k7cLbPjg6PWyPUPEnKp9iGXnjX8c4xER",
+          "signer": null
+        },
+        {
+          "scene": "council-ask",
+          "kind": "escalated",
+          "layer": "council",
+          "reason": "waiting for one council member (1 paid before)",
+          "tx": "Eydjb4k9KsB6i6oCBnZMqKU5exjYQ6frgHfUV8N8EHxt",
+          "signer": null
+        },
+        {
+          "scene": "council-approve",
+          "kind": "paid",
+          "layer": "council",
+          "reason": "approved by nearwarden.testnet: waiting for one council member (1 paid before)",
+          "tx": "CDQ7J7zDD5kwRSrT9yacRrUGTWgm2xDWy9ve8aS9miUy",
+          "signer": null
+        },
+        {
+          "scene": "trust",
+          "kind": "paid",
+          "layer": "reputation",
+          "reason": "small payout to a trusted contributor (2 paid before)",
+          "tx": "8ygBr9fwPjQeegyaeNvrNkWi184dDyp6kBQfTCY6E1Qr",
+          "signer": null
+        },
+        {
+          "scene": "grant",
+          "kind": "proposed",
+          "layer": "dao",
+          "reason": "2 NEAR is over the vault's cap of 1 NEAR, filed as a proposal on warden-commons.sputnikv2.testnet",
+          "tx": "Co2NUuyBzqexvBhVzeoueGDgwmE1cjhNuqtgWA3QVT7W",
+          "signer": null
+        },
+        {
+          "scene": "grant-vote",
+          "kind": "Approved",
+          "layer": "dao",
+          "reason": "proposal #0 on warden-commons.sputnikv2.testnet",
+          "tx": "GXfCDHbM3FuPs9AbvEUQuUqCERF3GBLvMLT6d6hoZ9Fy"
+        },
+        {
+          "scene": "forge",
+          "kind": "blocked",
+          "layer": "signature",
+          "reason": "signer 0x82cfb17646081c4f09d297ab675e27892fb4af3f is not an attested TEE signer",
+          "tx": "8t6k7MGLJoCHpAWvBKGs4stSHC183AyQKNEKsiog22ok",
+          "signer": "0x82cfb17646081c4f09d297ab675e27892fb4af3f"
+        },
+        {
+          "scene": "rawkey",
+          "kind": "rejected",
+          "layer": "access-key",
+          "reason": "Not enough allowance for access key ed25519:Cy3SydpWjVyayii8fRpCgLK9fC7vQ4pL3njJXesmq2CE on account commons.nearwarden.testnet (allowance: 498131574433585300000",
+          "tx": null,
+          "signer": null
+        },
+        {
+          "scene": "self-approve",
+          "kind": "rejected",
+          "layer": "access-key",
+          "reason": "Access key does not allow method approve",
+          "tx": null,
+          "signer": null
+        },
+        {
+          "scene": "founder",
+          "kind": "rejected",
+          "layer": "contract",
+          "reason": "set_mandate refused: owner only, and the owner is warden-commons.sputnikv2.testnet",
+          "tx": "5EakX7aMXMvvec2uFkNBzESgFBed9fdEBAuQwRWFH9mQ",
+          "signer": null
+        }
+      ]
+    }
+  ]
+}
