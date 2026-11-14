@@ -213,6 +213,13 @@ impl Warden {
             let r = format!("would bring today's spend to {}, over the daily cap of {}", near(self.spent_today + amt), near(self.policy.daily_cap.0));
             return self.record("blocked", "daily", &receiver, amt, &memo, r, None);
         }
+        // Never pay into the balance that keeps the contract's storage alive.
+        let reserve = env::storage_byte_cost().as_yoctonear() * (env::storage_usage() as u128 + 2_000);
+        let free = env::account_balance().as_yoctonear().saturating_sub(reserve);
+        if amt > free {
+            let r = format!("vault has {} free after its storage reserve, top it up", near(free));
+            return self.record("blocked", "balance", &receiver, amt, &memo, r, None);
+        }
         let allowlisted = self.policy.allowlist.contains(&receiver);
         if allowlisted && amt <= self.policy.auto_approve_below.0 {
             return self.send(&receiver, amt, &memo, "policy", "small payment to an allowlisted receiver".into(), None);
