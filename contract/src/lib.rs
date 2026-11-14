@@ -17,6 +17,12 @@
 //!     model's Intel TDX attestation,
 //!   - the decision is read from the signed response bytes.
 //!
+//! Communities (Sputnik DAO): the DAO owns the vault, so only a DAO vote can
+//! change the mandate or limits. Contributors earn reputation per paid payout.
+//! Small payouts to trusted contributors pay at once, mid-size ones need the
+//! TEE judge or one council member, and anything over the per-payment cap is
+//! filed as a normal Transfer proposal on the DAO, paid from its treasury.
+//!
 //! Rejections never panic: they are recorded as events so the owner can audit
 //! every attempt, including the blocked ones.
 
@@ -77,6 +83,29 @@ pub struct Event {
 }
 
 #[near(serializers = [json, borsh])]
+#[derive(Clone, Default)]
+pub struct Rep {
+    /// Payouts this account has received through the vault.
+    pub paid: u32,
+    pub total: U128,
+    /// The event of its latest payout, so every point is traceable.
+    pub last_event: Option<U64>,
+}
+
+#[near(serializers = [json, borsh])]
+#[derive(Clone)]
+pub struct Community {
+    /// Sputnik DAO whose treasury pays anything over the per-payment cap.
+    pub dao: Option<AccountId>,
+    /// Members who may approve or reject a pending payout on their own.
+    pub council: Vec<AccountId>,
+    /// Paid payouts after which a contributor counts as trusted.
+    pub trusted_after: u32,
+    /// Bond attached when filing a DAO proposal.
+    pub dao_bond: U128,
+}
+
+#[near(serializers = [json, borsh])]
 #[derive(Clone)]
 pub struct Pending {
     pub id: U64,
@@ -128,6 +157,8 @@ pub struct Warden {
     events: Vector<Event>,
     pending: IterableMap<u64, Pending>,
     next_pending: u64,
+    community: Community,
+    rep: IterableMap<AccountId, Rep>,
 }
 
 #[near]
@@ -146,6 +177,8 @@ impl Warden {
             events: Vector::new(b"e"),
             pending: IterableMap::new(b"p"),
             next_pending: 0,
+            community: Community { dao: None, council: vec![], trusted_after: 0, dao_bond: U128(0) },
+            rep: IterableMap::new(b"r"),
         }
     }
 
@@ -158,6 +191,7 @@ impl Warden {
         amount: U128,
         memo: String,
         verdict: Option<Verdict>,
+        escalate: Option<bool>,
     ) -> Event {
         self.assert_agent_or_owner();
         require!(memo.len() <= MAX_MEMO, "memo too long");
@@ -167,6 +201,9 @@ impl Warden {
         if let Some(why) = self.blocklist.get(&receiver) {
             let why = why.clone();
             return self.record("blocked", "blocklist", &receiver, amt, &memo, why, None);
+        }
+        if amt > self.policy.per_payment_cap.0 && self.community.dao.is_some() {
+            return self.propose_to_dao(&receiver, amt, &memo);
         }
         if amt > self.policy.per_payment_cap.0 {
             let r = format!("{} is over the per-payment cap of {}", near(amt), near(self.policy.per_payment_cap.0));
@@ -179,6 +216,21 @@ impl Warden {
         let allowlisted = self.policy.allowlist.contains(&receiver);
         if allowlisted && amt <= self.policy.auto_approve_below.0 {
             return self.send(&receiver, amt, &memo, "policy", "small payment to an allowlisted receiver".into(), None);
+        }
+        let paid_before = self.rep.get(&receiver).map(|r| r.paid).unwrap_or(0);
+        let trusted = self.community.trusted_after > 0 && paid_before >= self.community.trusted_after;
+        if trusted && amt <= self.policy.auto_approve_below.0 {
+            let r = format!("small payout to a trusted contributor ({} paid before)", paid_before);
+            return self.send(&receiver, amt, &memo, "reputation", r, None);
+        }
+
+        if verdict.is_none() && escalate.unwrap_or(false) && !self.community.council.is_empty() {
+            let r = format!("waiting for one council member ({} paid before)", paid_before);
+            let ev = self.record("escalated", "council", &receiver, amt, &memo, r.clone(), None);
+            let id = self.next_pending;
+            self.next_pending += 1;
+            self.pending.insert(id, Pending { id: U64(id), receiver, amount, memo, judge_reason: r, event_id: ev.id });
+            return ev;
         }
 
         let Some(v) = verdict else {
@@ -256,19 +308,34 @@ impl Warden {
 
     /// Owner approves an escalated payment. Caps still apply.
     pub fn approve(&mut self, id: U64) -> Event {
-        self.assert_owner();
+        let who = self.assert_owner_or_council();
         self.roll_day();
         let p = self.pending.remove(&id.0).expect("no such pending payment");
         if self.spent_today + p.amount.0 > self.policy.daily_cap.0 {
             return self.record("blocked", "daily", &p.receiver, p.amount.0, &p.memo, "owner approved, but the daily cap is reached".into(), None);
         }
-        self.send(&p.receiver, p.amount.0, &p.memo, "owner", format!("owner approved: {}", p.judge_reason), None)
+        let layer = if who == self.owner { "owner" } else { "council" };
+        self.send(&p.receiver, p.amount.0, &p.memo, layer, format!("approved by {}: {}", who, p.judge_reason), None)
     }
 
     pub fn reject(&mut self, id: U64) -> Event {
-        self.assert_owner();
+        let who = self.assert_owner_or_council();
+        let layer = if who == self.owner { "owner" } else { "council" };
         let p = self.pending.remove(&id.0).expect("no such pending payment");
-        self.record("rejected", "owner", &p.receiver, p.amount.0, &p.memo, "owner rejected".into(), None)
+        self.record("rejected", layer, &p.receiver, p.amount.0, &p.memo, format!("rejected by {}", who), None)
+    }
+
+    /// Set the DAO, council and trust threshold.
+    pub fn set_community(&mut self, community: Community) {
+        self.assert_owner();
+        self.community = community;
+    }
+
+    /// Hand the vault to a new owner, typically the DAO itself, so that every
+    /// later change to the mandate or limits needs a DAO vote.
+    pub fn set_owner(&mut self, owner: AccountId) {
+        self.assert_owner();
+        self.owner = owner;
     }
 
     pub fn withdraw(&mut self, amount: U128) -> Promise {
@@ -292,7 +359,13 @@ impl Warden {
             "signers": self.signers.values().cloned().collect::<Vec<_>>(),
             "blocklist": self.blocklist.iter().map(|(a, r)| serde_json::json!({"account": a, "reason": r})).collect::<Vec<_>>(),
             "pending": self.pending.values().cloned().collect::<Vec<_>>(),
+            "community": self.community,
+            "reputation": self.rep.iter().map(|(a, r)| serde_json::json!({"account": a, "paid": r.paid, "total": r.total, "last_event": r.last_event})).collect::<Vec<_>>(),
         })
+    }
+
+    pub fn get_reputation(&self, account: AccountId) -> Rep {
+        self.rep.get(&account).cloned().unwrap_or_default()
     }
 
     /// Newest first.
@@ -421,7 +494,29 @@ impl Warden {
     fn send(&mut self, receiver: &AccountId, amt: u128, memo: &str, layer: &str, reason: String, proof: Option<Proof>) -> Event {
         self.spent_today += amt;
         Promise::new(receiver.clone()).transfer(NearToken::from_yoctonear(amt)).detach();
-        self.record("paid", layer, receiver, amt, memo, reason, proof)
+        let ev = self.record("paid", layer, receiver, amt, memo, reason, proof);
+        let mut r = self.rep.get(receiver).cloned().unwrap_or_default();
+        r.paid += 1;
+        r.total = U128(r.total.0 + amt);
+        r.last_event = Some(ev.id);
+        self.rep.insert(receiver.clone(), r);
+        ev
+    }
+
+    /// Too big for the vault: file a Transfer proposal on the DAO, paid from
+    /// its treasury only if the members vote for it.
+    fn propose_to_dao(&mut self, receiver: &AccountId, amt: u128, memo: &str) -> Event {
+        let dao = self.community.dao.clone().unwrap();
+        let description = format!("Warden payout request from {}: {} to {}. {}", env::current_account_id(), near(amt), receiver, memo);
+        let args = serde_json::json!({ "proposal": {
+            "description": description.chars().take(900).collect::<String>(),
+            "kind": { "Transfer": { "token_id": "", "receiver_id": receiver, "amount": U128(amt) } }
+        }});
+        Promise::new(dao.clone())
+            .function_call("add_proposal", serde_json::to_vec(&args).unwrap(), NearToken::from_yoctonear(self.community.dao_bond.0), near_sdk::Gas::from_tgas(30))
+            .detach();
+        let r = format!("{} is over the vault's cap of {}, filed as a proposal on {}", near(amt), near(self.policy.per_payment_cap.0), dao);
+        self.record("proposed", "dao", receiver, amt, memo, r, None)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -457,6 +552,12 @@ impl Warden {
 
     fn assert_owner(&self) {
         require!(env::predecessor_account_id() == self.owner, "owner only");
+    }
+
+    fn assert_owner_or_council(&self) -> AccountId {
+        let p = env::predecessor_account_id();
+        require!(p == self.owner || self.community.council.contains(&p), "owner or council only");
+        p
     }
 
     fn assert_agent_or_owner(&self) {
@@ -558,7 +659,7 @@ mod tests {
     }
 
     fn pay(w: &mut Warden, v: Option<Verdict>) -> Event {
-        w.pay(fx::RECEIVER.parse().unwrap(), U128(fx::AMOUNT), fx::MEMO.into(), v)
+        w.pay(fx::RECEIVER.parse().unwrap(), U128(fx::AMOUNT), fx::MEMO.into(), v, None)
     }
 
     #[test]
@@ -572,7 +673,7 @@ mod tests {
     #[test]
     fn small_allowlisted_payment_skips_judge() {
         let mut w = vault();
-        let e = w.pay("vendor.test.near".parse().unwrap(), U128(N / 10), "data".into(), None);
+        let e = w.pay("vendor.test.near".parse().unwrap(), U128(N / 10), "data".into(), None, None);
         assert_eq!((e.kind.as_str(), e.layer.as_str()), ("paid", "policy"));
     }
 
@@ -643,13 +744,13 @@ mod tests {
     #[test]
     fn caps_come_before_the_judge() {
         let mut w = vault();
-        let e = w.pay(fx::RECEIVER.parse().unwrap(), U128(5 * N), fx::MEMO.into(), verdict(fx::APPROVE));
+        let e = w.pay(fx::RECEIVER.parse().unwrap(), U128(5 * N), fx::MEMO.into(), verdict(fx::APPROVE), None);
         assert_eq!(e.layer, "cap");
         for _ in 0..3 {
-            w.pay("vendor.test.near".parse().unwrap(), U128(N / 5), "d".into(), None);
+            w.pay("vendor.test.near".parse().unwrap(), U128(N / 5), "d".into(), None, None);
         }
         w.policy.daily_cap = U128(N / 2);
-        let e = w.pay("vendor.test.near".parse().unwrap(), U128(N / 5), "d".into(), None);
+        let e = w.pay("vendor.test.near".parse().unwrap(), U128(N / 5), "d".into(), None, None);
         assert_eq!(e.layer, "daily");
     }
 
@@ -675,6 +776,66 @@ mod tests {
         let mut w = vault();
         let p = w.policy.clone();
         w.set_policy(p);
+    }
+
+    fn community(w: &mut Warden) {
+        ctx("owner.test.near");
+        w.set_community(Community {
+            dao: Some("dao.test.near".parse().unwrap()),
+            council: vec!["council.test.near".parse().unwrap()],
+            trusted_after: 2,
+            dao_bond: U128(N / 10),
+        });
+        ctx(fx::VAULT);
+    }
+
+    #[test]
+    fn council_signoff_builds_reputation_then_trust_skips_review() {
+        let mut w = vault();
+        community(&mut w);
+        let alice: AccountId = "alice.test.near".parse().unwrap();
+        for i in 0..2 {
+            let e = w.pay(alice.clone(), U128(N / 5), "docs fix".into(), None, Some(true));
+            assert_eq!((e.kind.as_str(), e.layer.as_str()), ("escalated", "council"));
+            ctx("council.test.near");
+            let e = w.approve(U64(i));
+            assert_eq!((e.kind.as_str(), e.layer.as_str()), ("paid", "council"));
+            ctx(fx::VAULT);
+        }
+        assert_eq!(w.get_reputation(alice.clone()).paid, 2);
+        let e = w.pay(alice.clone(), U128(N / 5), "translation".into(), None, None);
+        assert_eq!((e.kind.as_str(), e.layer.as_str()), ("paid", "reputation"), "{}", e.reason);
+        // Trust only covers small payouts: a bigger one still needs review.
+        let e = w.pay(alice, U128(N), "big".into(), None, None);
+        assert_eq!(e.kind, "needs_verdict");
+    }
+
+    #[test]
+    fn over_the_cap_becomes_a_dao_proposal() {
+        let mut w = vault();
+        community(&mut w);
+        let e = w.pay("bob.test.near".parse().unwrap(), U128(5 * N), "event grant".into(), None, None);
+        assert_eq!((e.kind.as_str(), e.layer.as_str()), ("proposed", "dao"), "{}", e.reason);
+        assert_eq!(w.spent_today, 0);
+    }
+
+    #[test]
+    #[should_panic(expected = "owner or council only")]
+    fn agent_cannot_approve_its_own_payout() {
+        let mut w = vault();
+        community(&mut w);
+        w.pay("bob.test.near".parse().unwrap(), U128(N / 5), "x".into(), None, Some(true));
+        w.approve(U64(0));
+    }
+
+    #[test]
+    #[should_panic(expected = "owner only")]
+    fn after_handover_only_the_dao_changes_rules() {
+        let mut w = vault();
+        ctx("owner.test.near");
+        w.set_owner("dao.test.near".parse().unwrap());
+        let m = w.mandate.clone();
+        w.set_mandate(m);
     }
 
     #[test]
