@@ -1,0 +1,37 @@
+{
+  "at": "2026-11-14T14:58:42.053Z",
+  "vault": "vault.nearwarden.testnet",
+  "results": [
+    {
+      "scene": "auto",
+      "kind": "paid",
+      "layer": "policy",
+      "reason": "small payment to an allowlisted receiver",
+      "tx": "9s4LpbyAk7SU6dACct2PrEoWgXweGSnyLHwWXXgEKUwZ",
+      "signer": null
+    },
+    {
+      "scene": "forge",
+      "kind": "blocked",
+      "layer": "signature",
+      "reason": "signer 0x89ad20da3b234ee4209e26eeaeb2d09939775e68 is not an attested TEE signer",
+      "tx": "CbBQVyBKRb9kThjJyUCstGr4XVxV53f36TEnXNs4PtiG",
+      "signer": "0x89ad20da3b234ee4209e26eeaeb2d09939775e68"
+    },
+    {
+      "scene": "rawkey",
+      "kind": "protocol_rejected",
+      "layer": "access-key",
+      "reason": "Not enough allowance for access key ed25519:C3Z6oyJTbNHTkk7iEeUKt5PZ5KHp55BfpfcvQDuuuUPj on account vault.nearwarden.testnet (allowance: 49929272524861610000000",
+      "signer": null
+    },
+    {
+      "scene": "cap",
+      "kind": "blocked",
+      "layer": "cap",
+      "reason": "5 NEAR is over the per-payment cap of 2 NEAR",
+      "tx": "DamFhQbTc6zEMroHCptUb4um2zNninVdXbkBCbBbjkyb",
+      "signer": null
+    }
+  ]
+}
