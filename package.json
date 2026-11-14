@@ -23,6 +23,9 @@
     "mcp": "node mcp/server.mjs",
     "test": "cd contract && cargo test",
     "fixtures": "node test/make-fixtures.mjs",
-    "status": "node scripts/status.mjs"
+    "status": "node scripts/status.mjs",
+    "setup:commons": "WARDEN_CONFIG=commons node scripts/setup-commons.mjs",
+    "demo:commons": "WARDEN_CONFIG=commons node scripts/demo-commons.mjs",
+    "readme:runs": "node scripts/readme-runs.mjs"
   }
 }
