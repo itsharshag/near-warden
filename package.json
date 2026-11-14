@@ -1,0 +1,28 @@
+{
+  "name": "near-warden",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "ethers": "^6.17.0",
+    "near-api-js": "^7.2.0",
+    "zod": "^4.6.7"
+  },
+  "description": "A NEAR wallet for AI agents that verifies a TEE-signed AI judgment on chain before paying",
+  "scripts": {
+    "verify": "python3 verifier/attest.py Qwen/Qwen3.8-27B",
+    "init-testnet": "node scripts/init-testnet.mjs",
+    "setup": "node scripts/setup.mjs",
+    "demo": "node scripts/demo.mjs",
+    "agent": "node agent/run.mjs",
+    "mcp": "node mcp/server.mjs",
+    "test": "cd contract && cargo test",
+    "fixtures": "node test/make-fixtures.mjs",
+    "status": "node scripts/status.mjs"
+  }
+}
