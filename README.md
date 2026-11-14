@@ -4,7 +4,7 @@
 
 ![The payout agent is attacked on testnet and the vault stops it](https://commandcenter.itsharshag.com/pr-media/near-warden/warden-attacks.gif)
 
-**[Watch the 100s demo](https://commandcenter.itsharshag.com/pr-media/near-warden/warden-demo.mp4)** · [Post on X](https://x.com/itsharshag/status/2121731238860095745) · [Live dashboard](https://itsharshag.github.io/near-warden/)
+**[Watch the 46s app video](https://commandcenter.itsharshag.com/pr-media/near-warden/warden-booth.mp4)** · [Watch the 100s testnet run](https://commandcenter.itsharshag.com/pr-media/near-warden/warden-demo.mp4) · [Post on X](https://x.com/itsharshag/status/2121733506644725852) · [Live dashboard](https://itsharshag.github.io/near-warden/)
 
 | The pitch | An attack stopped | The live dashboard |
 | --- | --- | --- |
