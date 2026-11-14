@@ -131,46 +131,17 @@ Tools: `warden_status` (mandate, limits, balance, recent payments), `warden_pay`
 <!--RUN-->
 | Scene | Outcome | Decided by | Reason (from the contract's event) | Transaction |
 |---|---|---|---|---|
-| council-ask | escalated | council | waiting for one council member (0 paid before) | [ChmpJLe5...](https://testnet.nearblocks.io/txns/ChmpJLe5U3R34f3Eack7zx9Qt2sygE6AN15iZYcd6cFL) |
-| council-approve | paid | council | approved by nearwarden.testnet: waiting for one council member (0 paid before) | [H3dh2z82...](https://testnet.nearblocks.io/txns/H3dh2z825aF8k7cLbPjg6PWyPUPEnKp9iGXnjX8c4xER) |
-| council-ask | escalated | council | waiting for one council member (1 paid before) | [Eydjb4k9...](https://testnet.nearblocks.io/txns/Eydjb4k9KsB6i6oCBnZMqKU5exjYQ6frgHfUV8N8EHxt) |
-| council-approve | paid | council | approved by nearwarden.testnet: waiting for one council member (1 paid before) | [CDQ7J7zD...](https://testnet.nearblocks.io/txns/CDQ7J7zDD5kwRSrT9yacRrUGTWgm2xDWy9ve8aS9miUy) |
-| trust | paid | reputation | small payout to a trusted contributor (2 paid before) | [8ygBr9fw...](https://testnet.nearblocks.io/txns/8ygBr9fwPjQeegyaeNvrNkWi184dDyp6kBQfTCY6E1Qr) |
-| grant | proposed | dao | 2 NEAR is over the vault's cap of 1 NEAR, filed as a proposal on warden-commons.sputnikv2.testnet | [Co2NUuyB...](https://testnet.nearblocks.io/txns/Co2NUuyBzqexvBhVzeoueGDgwmE1cjhNuqtgWA3QVT7W) |
-| grant-vote | Approved | dao | proposal #0 on warden-commons.sputnikv2.testnet | [GXfCDHbM...](https://testnet.nearblocks.io/txns/GXfCDHbM3FuPs9AbvEUQuUqCERF3GBLvMLT6d6hoZ9Fy) |
-| forge | blocked | signature | signer 0x82cfb17646081c4f09d297ab675e27892fb4af3f is not an attested TEE signer | [8t6k7MGL...](https://testnet.nearblocks.io/txns/8t6k7MGLJoCHpAWvBKGs4stSHC183AyQKNEKsiog22ok) |
-| rawkey | rejected | access-key | Not enough allowance for access key ed25519:Cy3SydpWjVyayii8fRpCgLK9fC7vQ4pL3njJXesmq2CE on account commons.nearwarden.t | rejected before execution |
-| self-approve | rejected | access-key | Access key does not allow method approve | rejected before execution |
-| founder | rejected | contract | set_mandate refused: owner only, and the owner is warden-commons.sputnikv2.testnet | [5EakX7aM...](https://testnet.nearblocks.io/txns/5EakX7aMXMvvec2uFkNBzESgFBed9fdEBAuQwRWFH9mQ) |
-| council-ask | paid | reputation | small payout to a trusted contributor (3 paid before) | [5Jgrxt5M...](https://testnet.nearblocks.io/txns/5Jgrxt5M3eijU6j8ma429gwBfBGvE95jQP21xNerKJhP) |
-| council-ask | paid | reputation | small payout to a trusted contributor (4 paid before) | [AVapesy7...](https://testnet.nearblocks.io/txns/AVapesy71k5D7eNHmXws2w6SEHKyutZzfj6KWNmuYB8d) |
-| trust | rejected | access-key |  | [Fpa3oMnF...](https://testnet.nearblocks.io/txns/Fpa3oMnFjVtxQ3z2jxtDdj42wH6rXPyhqL2rWiMSuBUd) |
-| grant | proposed | dao | 2 NEAR is over the vault's cap of 1 NEAR, filed as a proposal on warden-commons.sputnikv2.testnet | [52JtfqW9...](https://testnet.nearblocks.io/txns/52JtfqW9oFftW942VuwC8tKvXQzepuTvFaVZgSqNXZT2) |
-| grant-vote | InProgress | dao | proposal #1 on warden-commons.sputnikv2.testnet | [3d3N3A41...](https://testnet.nearblocks.io/txns/3d3N3A411p4UWXTejwCjfCgYWJnDZiNuQqzfzRofJizC) |
-| forge | blocked | signature | signer 0x725c9cb55f03f93dc06e9b6be5e2b53545cc3d77 is not an attested TEE signer | [4CbZW7qg...](https://testnet.nearblocks.io/txns/4CbZW7qgBWkcMEJduffPoq6VFJBpmQdQkauY2ZM2oocJ) |
-| rawkey | rejected | access-key | Not enough allowance for access key ed25519:Cy3SydpWjVyayii8fRpCgLK9fC7vQ4pL3njJXesmq2CE on account commons.nearwarden.t | rejected before execution |
-| founder | rejected | the contract | set_mandate refused: owner only, and the owner is warden-commons.sputnikv2.testnet | [CVT93is1...](https://testnet.nearblocks.io/txns/CVT93is1SUvVjPRAxC7r8ysQ1GUweE8YPew7ouGAd6R4) |
-| council-ask | escalated | council | waiting for one council member (0 paid before) | [BGWuW6u1...](https://testnet.nearblocks.io/txns/BGWuW6u19gsbLkgrnQkdmN3r168qjseWpFcEhie5rofG) |
-| council-approve | paid | council | approved by nearwarden.testnet: waiting for one council member (0 paid before) | [7yA4Tf6U...](https://testnet.nearblocks.io/txns/7yA4Tf6U7QHLZ6DKEoZKv5Mmg1Ck6daJ9EkkxyV4qMVd) |
-| council-ask | escalated | council | waiting for one council member (1 paid before) | [FpcRFFjC...](https://testnet.nearblocks.io/txns/FpcRFFjCyg85rR755PdQMftK2bwgqg8Mih8b5PrLcdsZ) |
-| council-approve | paid | council | approved by nearwarden.testnet: waiting for one council member (1 paid before) | [8h9S2zjq...](https://testnet.nearblocks.io/txns/8h9S2zjqmfnZgC25YkDTGGZKha1Yax5JmRxrb6vioHPA) |
-| trust | paid | reputation | small payout to a trusted contributor (2 paid before) | [2Swfyvnt...](https://testnet.nearblocks.io/txns/2SwfyvntQBE5aoXP8yaBoe6LWXbEaDzUqEAVBvksZP8Z) |
-| grant | proposed | dao | 2 NEAR is over the vault's cap of 1 NEAR, filed as a proposal on warden-commons.sputnikv2.testnet | [3L1KnudX...](https://testnet.nearblocks.io/txns/3L1KnudX6RDcVQF8wjBCE7e9BGPtpnB1RXgTNjLJFYeM) |
-| grant-vote | InProgress | dao | proposal #2 on warden-commons.sputnikv2.testnet | [4ZZ2jDVm...](https://testnet.nearblocks.io/txns/4ZZ2jDVmKJD8Gi4ByS3bY1giUZetwN7fq87u5iK3ePxu) |
-| forge | blocked | signature | signer 0x44cb7cf67e74f02f45317fd752613a77c6566bfd is not an attested TEE signer | [DCCiNpMv...](https://testnet.nearblocks.io/txns/DCCiNpMvcwxjSncggE1EXKZMZPGHwGbfQjKYMjiPrTaE) |
-| rawkey | rejected | access-key | Not enough allowance for access key ed25519:Cy3SydpWjVyayii8fRpCgLK9fC7vQ4pL3njJXesmq2CE on account commons.nearwarden.t | rejected before execution |
-| founder | rejected | the contract | set_mandate refused: owner only, and the owner is warden-commons.sputnikv2.testnet | [6HZGMzEb...](https://testnet.nearblocks.io/txns/6HZGMzEbuFapfxdAZy8ziRHP1uPcXGMA4cPV5XwSdfN9) |
 | council-ask | escalated | council | waiting for one council member (0 paid before) | [3gszgdLP...](https://testnet.nearblocks.io/txns/3gszgdLPoirhzTcYbrG1p3uY4MAeGpS5NHW9R73cPAYL) |
-| council-approve | paid | council | approved by nearwarden.testnet: waiting for one council member (0 paid before) | [2ssXxCmH...](https://testnet.nearblocks.io/txns/2ssXxCmHYZXr9iK9yP6x52G5CVNYhKAVJkfpdyT1iGGU) |
 | council-ask | escalated | council | waiting for one council member (1 paid before) | [6cie4WZa...](https://testnet.nearblocks.io/txns/6cie4WZamh2hbwDEdriWL6hz9U8fKobAm73fGwSDZuXM) |
+| council-approve | paid | council | approved by nearwarden.testnet: waiting for one council member (0 paid before) | [2ssXxCmH...](https://testnet.nearblocks.io/txns/2ssXxCmHYZXr9iK9yP6x52G5CVNYhKAVJkfpdyT1iGGU) |
 | council-approve | paid | council | approved by nearwarden.testnet: waiting for one council member (1 paid before) | [DrTrUaAM...](https://testnet.nearblocks.io/txns/DrTrUaAMx9b8bxiayimt6kzhZAPhJ669JFr8nD9SU716) |
 | trust | paid | reputation | small payout to a trusted contributor (2 paid before) | [5ucrL9ht...](https://testnet.nearblocks.io/txns/5ucrL9htvWB5zebWD2h2iEBZJd6NHaQed2V1wPFUPuL) |
 | grant | proposed | dao | 2 NEAR is over the vault's cap of 1 NEAR, filed as a proposal on warden-commons.sputnikv2.testnet | [2CA2eaWG...](https://testnet.nearblocks.io/txns/2CA2eaWGkqNSw7DfkEFEnWXZjuJuSSrDta7FBsJrZdvb) |
 | grant-vote | Approved | dao | proposal #3 on warden-commons.sputnikv2.testnet | [Ci2ef8NC...](https://testnet.nearblocks.io/txns/Ci2ef8NCe2866VcxabV261SR4VrujVJQAtuLjtXPZQQo) |
-| forge | blocked | daily | would bring today's spend to 3.1 NEAR, over the daily cap of 3 NEAR | [4u3fTdqx...](https://testnet.nearblocks.io/txns/4u3fTdqx4hLJqkhJbAmZnH5vJZDnZJ3bJ5wMPCHBwxqs) |
-| rawkey | rejected | access-key | Access key requires full access | rejected before execution |
-| founder | rejected | the contract | set_mandate refused: owner only, and the owner is warden-commons.sputnikv2.testnet | [4HhV577p...](https://testnet.nearblocks.io/txns/4HhV577p2ndkFtzY92BW9UgSa39dCrYMbvWe36mCJkVi) |
 | forge | blocked | signature | signer 0xd2a0ae43eac0c3ebd8fdb0de864bb8caa9055d79 is not an attested TEE signer | [81gbu6Uo...](https://testnet.nearblocks.io/txns/81gbu6UoFC3p7GBxvwTqm7i45LEKHDG6SJvMWVnkfQrV) |
+| rawkey | rejected | access-key | Access key requires full access | rejected before execution |
+| self-approve | rejected | access-key | Access key does not allow method approve | rejected before execution |
+| founder | rejected | the contract | set_mandate refused: owner only, and the owner is warden-commons.sputnikv2.testnet | [4HhV577p...](https://testnet.nearblocks.io/txns/4HhV577p2ndkFtzY92BW9UgSa39dCrYMbvWe36mCJkVi) |
 | agent wallet: auto | paid | policy | small payment to an allowlisted receiver | [9s4LpbyA...](https://testnet.nearblocks.io/txns/9s4LpbyAk7SU6dACct2PrEoWgXweGSnyLHwWXXgEKUwZ) |
 | agent wallet: forge | blocked | signature | signer 0x89ad20da3b234ee4209e26eeaeb2d09939775e68 is not an attested TEE signer | [CbBQVyBK...](https://testnet.nearblocks.io/txns/CbBQVyBKRb9kThjJyUCstGr4XVxV53f36TEnXNs4PtiG) |
 | agent wallet: rawkey | protocol rejected | access-key | Not enough allowance for access key ed25519:C3Z6oyJTbNHTkk7iEeUKt5PZ5KHp55BfpfcvQDuuuUPj on account vault.nearwarden.tes | rejected before execution |
