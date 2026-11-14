@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Warden</title>
-<meta name="description" content="A NEAR wallet for AI agents that checks a TEE-signed judgment on chain before it pays.">
+<meta name="description" content="A NEAR vault that lets an AI agent pay DAO contributors within rules the DAO sets.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z' fill='%23d4ff3a'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -112,8 +112,8 @@ pre { overflow-x: auto; max-width: 100%; }
 <main class="wrap">
   <div class="hero">
     <div>
-      <h1>Give your agent money,<br><em>not the keys.</em></h1>
-      <p class="lede">A community payout agent on a Sputnik DAO treasury. Trusted contributors get paid at once. New ones need a council member or a TEE-signed AI verdict the contract checks on chain. Big grants go to a DAO vote.</p>
+      <h1>Your AI agent pays contributors.<br><em>The vault sets the limits.</em></h1>
+      <p class="lede">The vault pays trusted contributors at once, holds new ones for a council member or a signed AI verdict, and sends large grants to a DAO vote.</p>
     </div>
     <div class="stats">
       <div class="stat"><b id="bal">-</b><span>Vault balance</span></div>
@@ -124,14 +124,14 @@ pre { overflow-x: auto; max-width: 100%; }
   </div>
 
   <section>
-    <h2>Every payout passes six layers</h2>
+    <h2>Every payout passes six checks</h2>
     <div class="layers" id="layers">
-      <div class="layer" data-l="access-key"><span class="n">01</span><b>Scoped key</b><p>The agent's key can only call <code>pay</code>. It cannot transfer.</p></div>
-      <div class="layer" data-l="blocklist cap daily"><span class="n">02</span><b>Caps</b><p id="capsText">Per payout and per day.</p></div>
-      <div class="layer" data-l="reputation policy"><span class="n">03</span><b>Earned trust</b><p id="autoText">Small payouts to trusted contributors.</p></div>
-      <div class="layer" data-l="council owner"><span class="n">04</span><b>Council</b><p>One member signs off a new contributor.</p></div>
-      <div class="layer tee" data-l="judge signature mandate replay model format"><span class="n">05 · TEE</span><b>AI judge</b><p>Checks the claim against the DAO's mandate. Signature verified on chain.</p></div>
-      <div class="layer" data-l="dao"><span class="n">06 · DAO</span><b>Vote</b><p>Over the cap, a Transfer proposal on the DAO.</p></div>
+      <div class="layer" data-l="access-key"><span class="n">01</span><b>Scoped key</b><p>The agent's key can call <code>pay</code> and nothing else.</p></div>
+      <div class="layer" data-l="blocklist cap daily"><span class="n">02</span><b>Caps</b><p id="capsText">The vault caps each payment and each day.</p></div>
+      <div class="layer" data-l="reputation policy"><span class="n">03</span><b>Earned trust</b><p id="autoText">Trusted contributors get small payouts at once.</p></div>
+      <div class="layer" data-l="council owner"><span class="n">04</span><b>Council</b><p>A council member approves each payout to a new contributor.</p></div>
+      <div class="layer tee" data-l="judge signature mandate replay model format"><span class="n">05 · TEE</span><b>AI judge</b><p>An AI model checks the claim against the mandate. The contract verifies its signature.</p></div>
+      <div class="layer" data-l="dao"><span class="n">06 · DAO</span><b>Vote</b><p>Payouts over the cap become a DAO proposal.</p></div>
     </div>
   </section>
 
@@ -141,7 +141,7 @@ pre { overflow-x: auto; max-width: 100%; }
       <div class="feed" id="feed"><div class="empty">Reading events from testnet</div></div>
     </div>
     <div>
-      <h2>The DAO's rules, on chain</h2>
+      <h2>The DAO's rules</h2>
       <div class="card"><h3>Mandate</h3><div class="mandate" id="mandate">-</div></div>
       <div class="card"><h3>Contributors</h3><dl class="kv" id="rep"></dl></div>
       <div class="card"><h3>Policy</h3><dl class="kv" id="policy"></dl></div>
@@ -150,7 +150,7 @@ pre { overflow-x: auto; max-width: 100%; }
   </section>
 
   <section>
-    <h2>Give your own agent a Warden wallet</h2>
+    <h2>Put your own agent behind a vault</h2>
     <pre>git clone https://github.com/itsharshag/near-warden && cd near-warden && npm i
 claude mcp add warden -- node $PWD/mcp/server.mjs                      # tools: warden_status, warden_pay, warden_report
 WARDEN_CONFIG=commons node scripts/demo-commons.mjs                     # the community scenes, real testnet transactions</pre>
@@ -158,12 +158,12 @@ WARDEN_CONFIG=commons node scripts/demo-commons.mjs                     # the co
 </main>
 
 <footer class="wrap">
-  <span>Built at NEAR HACKATHON</span>
+  <span>Built for the NEAR hackathon</span>
   <a href="https://github.com/itsharshag/near-warden">GitHub</a>
   <a id="nb" href="#">Vault on NearBlocks</a>
   <a id="daolink" href="#">DAO</a>
   <a href="https://cloud.near.ai/verify">NEAR AI Cloud verification</a>
-  <a href="#" id="theme">Light / dark</a>
+  <a href="#" id="theme">Theme</a>
 </footer>
 
 <script>
@@ -198,8 +198,8 @@ async function tick() {
     $("rep").innerHTML = (s.reputation || []).sort((a, b) => b.paid - a.paid).map((r) => `<dt>${esc(r.account)}</dt><dd>${r.paid} paid · ${near(r.total)}${c.trusted_after && r.paid >= c.trusted_after ? " · trusted" : ""}</dd>`).join("") || "<dt>none yet</dt><dd></dd>";
     if (c.dao) { $("daolink").href = `https://testnet.nearblocks.io/address/${c.dao}`; $("daolink").textContent = "DAO on NearBlocks"; }
     $("mandate").textContent = s.mandate;
-    $("capsText").textContent = `${near(s.policy.per_payment_cap)} per payment, ${near(s.policy.daily_cap)} a day.`;
-    $("autoText").textContent = `Up to ${near(s.policy.auto_approve_below)}, trusted ${trust}.`;
+    $("capsText").textContent = `At most ${near(s.policy.per_payment_cap)} a payment and ${near(s.policy.daily_cap)} a day.`;
+    $("autoText").textContent = `Contributors with ${c.trusted_after} paid payouts get up to ${near(s.policy.auto_approve_below)} at once.`;
     $("policy").innerHTML = [
       ["Judge model", s.policy.judge_model], ["Per payment", near(s.policy.per_payment_cap)], ["Per day", near(s.policy.daily_cap)],
       ["Auto-pay", "up to " + near(s.policy.auto_approve_below)], ["Trusted", trust], ["Owner", s.owner], ["Council", (c.council || []).join(", ")], ["Blocklist", s.blocklist.length ? s.blocklist.map((b) => b.account).join(", ") : "empty"],
