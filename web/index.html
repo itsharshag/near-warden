@@ -64,7 +64,7 @@ section { padding: 26px 0; border-top: 1px solid var(--line); }
 .chip { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; padding: 3px 8px; border-radius: 6px; text-align: center; }
 .k-paid { color: var(--ok); background: color-mix(in srgb, var(--ok) 13%, transparent); }
 .k-blocked, .k-rejected { color: var(--bad); background: color-mix(in srgb, var(--bad) 13%, transparent); }
-.k-escalated, .k-needs_verdict { color: var(--warn); background: color-mix(in srgb, var(--warn) 13%, transparent); }
+.k-escalated, .k-needs_verdict, .k-proposed { color: var(--warn); background: color-mix(in srgb, var(--warn) 13%, transparent); }
 .k-reported { color: var(--tee); background: color-mix(in srgb, var(--tee) 13%, transparent); }
 .ev .what { font-size: 14px; }
 .ev .what b { font-family: var(--mono); font-weight: 500; }
@@ -89,6 +89,8 @@ section { padding: 26px 0; border-top: 1px solid var(--line); }
 pre { max-width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; overflow-x: auto; font: 13px/1.6 var(--mono); margin: 0; }
 footer { color: var(--mute); font-size: 13px; padding: 28px 0 48px; border-top: 1px solid var(--line); display: flex; gap: 18px; flex-wrap: wrap; }
 
+pre { overflow-x: auto; max-width: 100%; }
+.kv dd, .kv dt, .ev .what, .ev .why, .proof, .addr, .mandate { overflow-wrap: anywhere; min-width: 0; }
 @media (max-width: 860px) {
   .grid2 > div, .hero > div { min-width: 0; }
   .live span:last-child { max-width: 46vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -111,25 +113,25 @@ footer { color: var(--mute); font-size: 13px; padding: 28px 0 48px; border-top: 
   <div class="hero">
     <div>
       <h1>Give your agent money,<br><em>not the keys.</em></h1>
-      <p class="lede">A NEAR wallet for AI agents. Small payments pass on policy. Everything else needs a verdict from an AI judge running in a TEE, and the contract checks that verdict's signature on chain before it pays.</p>
+      <p class="lede">A community payout agent on a Sputnik DAO treasury. Trusted contributors get paid at once. New ones need a council member or a TEE-signed AI verdict the contract checks on chain. Big grants go to a DAO vote.</p>
     </div>
     <div class="stats">
       <div class="stat"><b id="bal">-</b><span>Vault balance</span></div>
       <div class="stat"><b id="spent">-</b><span>Spent today</span><div class="bar"><i id="spentbar"></i></div></div>
-      <div class="stat"><b id="paid">-</b><span>Payments made</span></div>
-      <div class="stat"><b id="stopped">-</b><span>Attempts stopped</span></div>
+      <div class="stat"><b id="paid">-</b><span>Payouts</span></div>
+      <div class="stat"><b id="stopped">-</b><span>Stopped</span></div>
     </div>
   </div>
 
   <section>
-    <h2>Every payment passes six layers</h2>
+    <h2>Every payout passes six layers</h2>
     <div class="layers" id="layers">
       <div class="layer" data-l="access-key"><span class="n">01</span><b>Scoped key</b><p>The agent's key can only call <code>pay</code>. It cannot transfer.</p></div>
-      <div class="layer" data-l="blocklist"><span class="n">02</span><b>Blocklist</b><p>Reported scam accounts never get paid.</p></div>
-      <div class="layer" data-l="cap daily"><span class="n">03</span><b>Caps</b><p id="capsText">Per payment and per day.</p></div>
-      <div class="layer" data-l="policy"><span class="n">04</span><b>Auto-approve</b><p id="autoText">Small payments to allowlisted vendors.</p></div>
-      <div class="layer tee" data-l="judge"><span class="n">05 · TEE</span><b>AI judge</b><p>Checks the payment against the owner's mandate, inside Intel TDX + NVIDIA confidential compute.</p></div>
-      <div class="layer tee" data-l="signature mandate replay model format"><span class="n">06 · on chain</span><b>Proof check</b><p>ecrecover on the TEE signature, exact prompt, fresh nonce.</p></div>
+      <div class="layer" data-l="blocklist cap daily"><span class="n">02</span><b>Caps</b><p id="capsText">Per payout and per day.</p></div>
+      <div class="layer" data-l="reputation policy"><span class="n">03</span><b>Earned trust</b><p id="autoText">Small payouts to trusted contributors.</p></div>
+      <div class="layer" data-l="council owner"><span class="n">04</span><b>Council</b><p>One member signs off a new contributor.</p></div>
+      <div class="layer tee" data-l="judge signature mandate replay model format"><span class="n">05 · TEE</span><b>AI judge</b><p>Checks the claim against the DAO's mandate. Signature verified on chain.</p></div>
+      <div class="layer" data-l="dao"><span class="n">06 · DAO</span><b>Vote</b><p>Over the cap, a Transfer proposal on the DAO.</p></div>
     </div>
   </section>
 
@@ -139,8 +141,9 @@ footer { color: var(--mute); font-size: 13px; padding: 28px 0 48px; border-top: 
       <div class="feed" id="feed"><div class="empty">Reading events from testnet</div></div>
     </div>
     <div>
-      <h2>Owner's rules, on chain</h2>
+      <h2>The DAO's rules, on chain</h2>
       <div class="card"><h3>Mandate</h3><div class="mandate" id="mandate">-</div></div>
+      <div class="card"><h3>Contributors</h3><dl class="kv" id="rep"></dl></div>
       <div class="card"><h3>Policy</h3><dl class="kv" id="policy"></dl></div>
       <div class="card"><h3>Attested judge</h3><div id="signers"></div><ul class="checks" id="checks"></ul></div>
     </div>
@@ -149,8 +152,8 @@ footer { color: var(--mute); font-size: 13px; padding: 28px 0 48px; border-top: 
   <section>
     <h2>Give your own agent a Warden wallet</h2>
     <pre>git clone https://github.com/itsharshag/near-warden && cd near-warden && npm i
-claude mcp add warden -- node $PWD/mcp/server.mjs      # tools: warden_status, warden_pay, warden_report
-node scripts/demo.mjs                                   # the 8 scenes, real testnet transactions</pre>
+claude mcp add warden -- node $PWD/mcp/server.mjs                      # tools: warden_status, warden_pay, warden_report
+WARDEN_CONFIG=commons node scripts/demo-commons.mjs                     # the community scenes, real testnet transactions</pre>
   </section>
 </main>
 
@@ -158,18 +161,19 @@ node scripts/demo.mjs                                   # the 8 scenes, real tes
   <span>Built at NEAR HACKATHON</span>
   <a href="https://github.com/itsharshag/near-warden">GitHub</a>
   <a id="nb" href="#">Vault on NearBlocks</a>
+  <a id="daolink" href="#">DAO</a>
   <a href="https://cloud.near.ai/verify">NEAR AI Cloud verification</a>
   <a href="#" id="theme">Light / dark</a>
 </footer>
 
 <script>
-const CFG = { rpc: "https://test.rpc.fastnear.com", vault: new URLSearchParams(location.search).get("vault") || "vault.nearwarden.testnet" };
+const CFG = { rpc: "https://test.rpc.fastnear.com", vault: new URLSearchParams(location.search).get("vault") || "commons.nearwarden.testnet" };
 const $ = (id) => document.getElementById(id);
 const YOCTO = 10n ** 24n;
 const near = (y) => { const b = BigInt(y); const w = b / YOCTO; const f = (b % YOCTO).toString().padStart(24, "0").slice(0, 3).replace(/0+$/, ""); return `${w}${f ? "." + f : ""} NEAR`; };
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const ago = (ns) => { const s = Math.max(0, (Date.now() - Number(BigInt(ns) / 1000000n)) / 1000); return s < 60 ? `${s | 0}s ago` : s < 3600 ? `${(s / 60) | 0}m ago` : s < 86400 ? `${(s / 3600) | 0}h ago` : `${(s / 86400) | 0}d ago`; };
-const LAYER = { "access-key": "scoped key", blocklist: "blocklist", cap: "per-payment cap", daily: "daily cap", policy: "policy", judge: "TEE judge", signature: "signature check", mandate: "prompt check", replay: "nonce check", model: "model check", format: "format check", owner: "owner" };
+const LAYER = { "access-key": "scoped key", blocklist: "blocklist", cap: "per-payment cap", daily: "daily cap", policy: "policy", judge: "TEE judge", signature: "signature check", mandate: "prompt check", replay: "nonce check", model: "model check", format: "format check", owner: "owner", council: "council", reputation: "earned trust", dao: "DAO vote" };
 
 async function view(method, args = {}) {
   const r = await fetch(CFG.rpc, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "query", params: { request_type: "call_function", finality: "optimistic", account_id: CFG.vault, method_name: method, args_base64: btoa(JSON.stringify(args)) } }) });
@@ -189,12 +193,16 @@ async function tick() {
     $("spentbar").style.width = Math.min(100, Number((BigInt(s.spent_today) * 100n) / BigInt(s.policy.daily_cap))) + "%";
     $("paid").textContent = events.filter((e) => e.kind === "paid").length;
     $("stopped").textContent = events.filter((e) => ["blocked", "rejected"].includes(e.kind)).length;
+    const c = s.community || {};
+    const trust = c.trusted_after ? `after ${c.trusted_after} paid payouts` : "off";
+    $("rep").innerHTML = (s.reputation || []).sort((a, b) => b.paid - a.paid).map((r) => `<dt>${esc(r.account)}</dt><dd>${r.paid} paid · ${near(r.total)}${c.trusted_after && r.paid >= c.trusted_after ? " · trusted" : ""}</dd>`).join("") || "<dt>none yet</dt><dd></dd>";
+    if (c.dao) { $("daolink").href = `https://testnet.nearblocks.io/address/${c.dao}`; $("daolink").textContent = "DAO on NearBlocks"; }
     $("mandate").textContent = s.mandate;
     $("capsText").textContent = `${near(s.policy.per_payment_cap)} per payment, ${near(s.policy.daily_cap)} a day.`;
-    $("autoText").textContent = `Up to ${near(s.policy.auto_approve_below)} to ${s.policy.allowlist.join(", ")}.`;
+    $("autoText").textContent = `Up to ${near(s.policy.auto_approve_below)}, trusted ${trust}.`;
     $("policy").innerHTML = [
       ["Judge model", s.policy.judge_model], ["Per payment", near(s.policy.per_payment_cap)], ["Per day", near(s.policy.daily_cap)],
-      ["Auto-approve", "≤ " + near(s.policy.auto_approve_below)], ["Allowlist", s.policy.allowlist.join(", ")], ["Blocklist", s.blocklist.length ? s.blocklist.map((b) => b.account).join(", ") : "empty"],
+      ["Auto-pay", "up to " + near(s.policy.auto_approve_below)], ["Trusted", trust], ["Owner", s.owner], ["Council", (c.council || []).join(", ")], ["Blocklist", s.blocklist.length ? s.blocklist.map((b) => b.account).join(", ") : "empty"],
       ["Next nonce", s.nonce], ["Pending", s.pending.length],
     ].map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");
     $("signers").innerHTML = s.signers.map((g) => `<div class="addr">${esc(g.address)}</div><div style="font-size:12px;color:var(--mute)">${esc(g.model)} · evidence ${esc(g.evidence_sha256.slice(0, 16))}…</div>`).join("") || "none";
