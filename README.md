@@ -2,6 +2,14 @@
 
 **Give your agent money, not the keys.**
 
+![The payout agent is attacked on testnet and the vault stops it](https://commandcenter.itsharshag.com/pr-media/near-warden/warden-attacks.gif)
+
+**[Watch the 100s demo](https://commandcenter.itsharshag.com/pr-media/near-warden/warden-demo.mp4)** · [Post on X](https://x.com/itsharshag/status/2121731238860095745) · [Live dashboard](https://itsharshag.github.io/near-warden/)
+
+| The pitch | An attack stopped | The live dashboard |
+| --- | --- | --- |
+| ![Title card](https://commandcenter.itsharshag.com/pr-media/near-warden/still-title.png) | ![A forged approval is blocked on testnet](https://commandcenter.itsharshag.com/pr-media/near-warden/still-stopped.png) | ![The dashboard reads the vault over RPC](https://commandcenter.itsharshag.com/pr-media/near-warden/still-dashboard.png) |
+
 Warden lets a community hand its payouts to an AI agent without handing it the treasury. The community's Sputnik DAO owns a Warden vault. A payout agent pays contributors for finished bounties, and every payout goes through rules the agent cannot get around:
 
 - **Trust is earned.** Every paid payout adds to the contributor's on-chain reputation, traceable to the event that paid it. Small payouts to trusted contributors pay at once.
@@ -16,6 +24,14 @@ A prompt-injected payout agent, a forged approval, or an agent that lies to its 
 - Vault: [`commons.nearwarden.testnet`](https://testnet.nearblocks.io/address/commons.nearwarden.testnet), owned by the DAO
 - Dashboard: https://itsharshag.github.io/near-warden/ (reads the contract live over RPC)
 - MCP server: `mcp/server.mjs`, so Claude Code, Codex or any MCP agent can act as the payout agent
+
+## Design
+
+The full app design is direction C, The Record: a public site and a read-only console that anyone can open for any vault. Every screen uses live testnet data from this vault.
+
+![Landing page design](https://commandcenter.itsharshag.com/pr-media/near-warden/design-landing.jpg)
+
+![Console screens: overview, decisions, request trace, council, contributors, stopped, DAO and rules](https://commandcenter.itsharshag.com/pr-media/near-warden/design-console.jpg)
 
 ## The problem
 
